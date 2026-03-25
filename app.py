@@ -70,7 +70,7 @@ class MyClient(botpy.Client):
         command_handler_map = {
             "switch": self.__switch_mode,
             "modes" : lambda _: "Available modes include:\n" + "\n".join(self.__modes_titles),
-            "active_mode": lambda _: f"{self.__current_mode_title} mode is activate now.",
+            "active_mode": lambda _: f"{self.__current_mode_title} mode is activated now.",
             "help": self.__helper,
             "hi": lambda _: "Hello!"
         }
@@ -198,8 +198,10 @@ def exec(command: str):
 
 def chat(message):
     if not hasattr(chat, "context"):
+        with open("llm_tools/IDENTITY.md", "r", encoding="utf-8") as f:
+            system_prompt = f.read()
         chat.context = [
-            {"role": "system", "content": "You are a helpful assistant."}
+            {"role": "system", "content": system_prompt}
         ]
 
     chat.context.append(
