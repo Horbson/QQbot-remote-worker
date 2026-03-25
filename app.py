@@ -86,10 +86,13 @@ class MyClient(botpy.Client):
         else:
             if received_content == self.__random_code:
                 self.supervisor_openid = sender_openid
+                os.makedirs("data", exist_ok=True)
+                with open("data/supervisor.json", "w") as f:
+                    json.dump({"supervisor_openid": self.supervisor_openid}, f)
                 _log.info(f"管理员绑定: OpenID={self.supervisor_openid}")
                 await self.online_notify()
             else:
-                _log.warning(f"验证码错误。")
+                _log.info(f"错误的验证码。")
 
     async def online_notify(self):
         if hasattr(self, "supervisor_openid"):
@@ -108,12 +111,12 @@ class MyClient(botpy.Client):
 
     async def on_ready(self):
         _log.info(f"「{self.robot.name}」 连接成功!")
-        
         self.supervisor_openid = self.check_supervisor()
         if self.supervisor_openid:
             await self.online_notify()
         else:
-            self.initializer()
+            await self.initializer()
+            return
 
     async def on_c2c_message_create(self, message: C2CMessage):
         recv_content = message.content
@@ -124,6 +127,15 @@ class MyClient(botpy.Client):
         # 绑定管理员
         if self.supervisor_openid is None:
             await self.initializer(recv_content, sender_openid)
+            return
+        
+        elif sender_openid != self.supervisor_openid:
+            _log.info(f"收到未授权用户OpenID={sender_openid}的消息。已忽略，走！")
+            await self.send_c2c_text_message(
+                openid = sender_openid,
+                content = "Denied." 
+            )
+            return
 
         # 管理员已绑定，处理消息
         # 处理命令
@@ -182,10 +194,7 @@ def exec(command: str):
         output = result.stderr
         status = "Failed"
 
-    return """
-        Execution {status}:
-        {output}
-    """.format(status=status, output=output)
+    return f"Execution {status} with return code {result.returncode}, output: \n{output}"
 
 def chat(message):
     if not hasattr(chat, "context"):
