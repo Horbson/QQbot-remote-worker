@@ -130,7 +130,7 @@ class MyClient(botpy.Client):
             return
         
         elif sender_openid != self.supervisor_openid:
-            _log.info(f"收到未授权用户OpenID={sender_openid}的消息。已忽略，走！")
+            _log.info(f"收到未授权用户OpenID={sender_openid}的消息。已忽略。")
             await self.send_c2c_text_message(
                 openid = sender_openid,
                 content = "Denied." 
@@ -151,7 +151,8 @@ class MyClient(botpy.Client):
         
         await self.send_c2c_text_message(
             openid = sender_openid,
-            content = send_content
+            content = send_content,
+            msg_type=2
         )
 
     async def send_c2c_text_message(self, openid, content, msg_type=0):
@@ -194,7 +195,7 @@ def exec(command: str):
         output = result.stderr
         status = "Failed"
 
-    return f"Execution {status} with return code {result.returncode}, output: \n{output}"
+    return f"Execution {status}\n - return code:{result.returncode}\n - output: \n```\n{output}\n```"
 
 def chat(message):
     if not hasattr(chat, "context"):
@@ -209,16 +210,16 @@ def chat(message):
     )
 
     result = call_llm(context=chat.context)
-    return f"<thinking>\n{result['reasoning_content']}\n</thinking>\n{result['content']}"
+    return f"```\n思考: {result['reasoning_content']}\n```\n{result['content']}"
 
 modes = {
-    "exec": {
-        "description": "Execute shell command",
-        "handler": exec
-    },
     "chat": {
         "description": "Chat with AI assistant.",
         "handler": chat
+    },
+    "exec": {
+        "description": "Execute shell command",
+        "handler": exec
     }
 }
 
