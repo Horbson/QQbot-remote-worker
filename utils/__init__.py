@@ -1,0 +1,1 @@
+from .safety import generate_random_code
