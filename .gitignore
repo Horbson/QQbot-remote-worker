@@ -22,6 +22,7 @@ wheels/
 
 #temporary code
 temp*.py
+temp*.md
 
 # Virtual environments
 venv/
@@ -44,6 +45,7 @@ demos/
 
 # Logs
 *.log
+*.log.*
 
 # Claude
 .claude/
