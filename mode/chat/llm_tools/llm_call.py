@@ -8,7 +8,7 @@ def message_generator(streamIter, including_reasoning=True):
     """
     for chunk in streamIter:
         delta = chunk.choices[0].delta
-        if delta.reasoning_content:
+        if hasattr(delta, "reasoning_content"):
             if not including_reasoning:
                 continue
             yield {"type": "thinking", "content": delta.reasoning_content, "role": "assistant"}
@@ -48,9 +48,10 @@ def call_llm(
     if stream:
         return response
     else:
+        message = response.choices[0].message
         return {
-            "reasoning_content": response.choices[0].message.reasoning_content if thinking else "",
-            "content": response.choices[0].message.content,
+            "reasoning_content": message.get("reasoning_content"),
+            "content": message.content,
             "full_response_body": response
         }
 
@@ -59,7 +60,7 @@ if __name__ == "__main__":
         {"role": "system", "content": "你是一个有用的助手"},
         {"role": "user", "content": "介绍下你自己"}
     ]
-    result = call_llm(context = test_context, stream = True)
+    result = call_llm(context = test_context, stream = True, thinking=False)
     status  = "start"
     for delta in message_generator(result):
         new_status = delta["type"]

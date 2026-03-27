@@ -57,8 +57,7 @@ class Executor(BaseMode):
     def command_handler(self, command, arg_str=None):
         if command == "set_cwd":
             if arg_str:
-                self.set_cwd(arg_str)
-                return "Success."
+                return self.set_cwd(arg_str)
             else:
                 return "Missing argument."
         elif command == "whereami":

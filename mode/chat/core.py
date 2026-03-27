@@ -11,7 +11,12 @@ class Chat(BaseMode):
             {"role": "user", "content": message}
         )
         result = call_llm(context=self.context, thinking=self.thinking)
-        return f"```\n思考: {result['reasoning_content']}\n```\n{result['content']}\n"
+        reasoning_block = (
+            "```\n"
+            f"思考: {result["reasoning_content"]}\n"
+            "```\n"
+        ) if self.thinking else ""
+        return reasoning_block + result["content"]
 
     def command_handler(self, command, arg_str):
         if command == "new_session":
