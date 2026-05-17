@@ -18,7 +18,7 @@
     - qq-botpy==1.2.1
     - dotenv
  - 在[腾讯开放平台](https://q.qq.com)注册一个QQ机器人，并把AppSecret和AppID填写到.env文件里。
- - 准备一个OpenAI兼容的大语言模型API。然后把base_url和api_key填到.env里。
+ - 准备一个OpenAI兼容的大语言模型API。然后把base_url、api_key和model_id填到.env里。
 
 ## 运行
  - 准备好后，直接`python app.py`就能运行。
@@ -35,7 +35,7 @@
 
 机器人同一时间只会激活一个模式。目前仅有两个模式：
 1. **exec**（默认）：将消息作为命令行命令处理，返回执行结果。
-2. **chat**：和AI助手进行对话。目前还仅仅只是对话而已。
+2. **chat**：和带有本地工具调用能力的AI助手进行对话。
 
 目前可用命令：
 
@@ -48,7 +48,17 @@
 模式相关命令：
  - `/exec:set_cwd`：设定`exec`执行命令的工作目录。
  - `/exec:whereami`：查看`exec`当前工作目录
- - `/chat:new_session`：清空上下文。
+ - `/chat:new_session`：清空上下文和待确认操作。
+ - `/chat:reasoning <none|minimal|low|medium|high|xhigh|max>`：设置Chat模式的推理强度。
+ - `/chat:confirm <id>`：确认一次需要确认的Chat工具调用。
+ - `/chat:cancel <id>`：取消一次需要确认的Chat工具调用。
+
+Chat模式目前提供以下工具：
+ - `pwd()`：查看项目根目录、当前工作目录和平台信息。
+ - `ls(path)`：列出目录内容。相对路径默认从项目根目录解析。
+ - `read(path)`：读取文本文件内容。
+ - `write(path, content, mode)`：写入文本文件。写入绝对路径、项目外路径或修改已有文件时会要求确认。
+ - `exec(cmd, shell, timeout)`：执行命令。危险命令会要求确认。
 
 ## 扩展
 
@@ -64,15 +74,14 @@
 
 ## 当前的问题与隐患
  - 仅在Windows平台上测试过。不知道在wsl/Linux环境下会出什么问题。
- - 调用大模型API的函数是照着DeepSeek写的，使用和返回了有可能是DeepSeek独有的字段`reasoning_content`。
-    > 如果出现了这种情况，修改`mode/chat/llm_tools/llm_call`中的`call_llm`函数即可。
+ - Chat模式使用OpenAI Chat Completions的tool calling和`reasoning_effort`参数；不同OpenAI兼容服务对工具调用和推理强度的支持可能不同。默认模型ID为`deepseek-v4-flash`，可通过`.env`中的`OPENAI_MODEL_ID`修改。
  - `exec`函数没有任何拦截与再确认机制。执行有风险的命令前请三思。并且运行时注意不要让别人能使用你的QQ号给机器人发消息。
  - `exec`函数在执行阻塞式的命令（如`python`, `start cmd`）时，超时可能不会正常生效，导致机器人被卡住。
  - 代码中可能突然出现的报错。
 
 ## 计划更新的内容
  - 完善日志记录。
- - 完善chat模式并且给AI助手搭建Agent框架，提供操作电脑的能力。<s>（所以为什么不直接给OpenClaw发消息呢？）</s>
+ - 继续完善chat模式的Agent能力，例如更细致的安全策略和更多工具。<s>（所以为什么不直接给OpenClaw发消息呢？）</s>
  - 提供更多模式和命令，例如我最需要的将电脑上的某文件发送给我。
  - 改bug。
 

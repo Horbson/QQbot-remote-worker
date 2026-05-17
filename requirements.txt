@@ -1,0 +1,8 @@
+qq-botpy==1.2.1
+openai==2.29.0
+python-dotenv>=1.0.0
+
+# Optional dependencies for future extensions:
+# watchdog>=3.0.0
+# pydantic>=2.0.0
+# pytest>=7.0.0

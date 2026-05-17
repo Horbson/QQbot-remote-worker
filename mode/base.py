@@ -5,13 +5,13 @@ class BaseMode:
     """
     def message_handler(self, message):
         """
-        处理消息的接口，接受消息对象，返回回复内容字符串。
+        处理消息的接口，接受完整消息对象，返回回复内容字符串或 BotReply。
         """
         pass
 
-    def command_handler(self, command, arg_str):
+    def command_handler(self, message, command, arg_str):
         """
-        处理命令的接口，接受子命令和参数字符串，返回回复内容字符串。
+        处理命令的接口，接受完整消息对象、子命令和参数字符串，返回回复内容字符串或 BotReply。
         如果子命令不存在，根据以下约定返回错误消息：
         """
         unknown_command_msg_template = "未知命令：{mode}模式没有{command}命令。"

@@ -19,15 +19,22 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+tests/__pycache__/
+.pytest_cache
+
 
 #temporary code
 temp*.py
 temp*.md
 
+.tmp/
+
 # Virtual environments
+.venv/
 venv/
 env/
 ENV/
+.tmp/
 
 # IDE
 .vscode/
@@ -44,9 +51,12 @@ data/
 demos/
 
 # Logs
+logs/
 *.log
 *.log.*
 
 # Claude
 .claude/
 CLAUDE.md
+
+note/

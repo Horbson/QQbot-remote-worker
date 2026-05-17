@@ -1,17 +1,27 @@
+# -*- coding: utf-8 -*-
+"""
+Mode system entry point.
+
+All available modes are discovered at import time and then validated before the
+global ModeManager instance is created.
+"""
+from botpy import logging
+
 from .manager import ModeManager
+from .plugin_loader import discover_modes, validate_mode
 
-from .executor import Executor
-from .chat import Chat
+_log = logging.get_logger(__name__)
 
-modes = {
-    "exec": {
-        "class": Executor,
-        "description": "执行系统命令的模式。"
-    },
-    "chat": {
-        "class": Chat,
-        "description": "普通聊天模式，适合日常对话和问答。"
-    }
-}
+discovered_modes = discover_modes()
+valid_modes = {}
 
+for mode_name, mode_config in discovered_modes.items():
+    if validate_mode(mode_name, mode_config):
+        valid_modes[mode_name] = mode_config
+    else:
+        _log.error(f"Mode {mode_name} validation failed, skipped.")
+
+modes = valid_modes
 mode_manager = ModeManager(modes)
+
+_log.info(f"Mode system initialized. loaded={len(modes)}, modes={list(modes.keys())}")
